@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package task_package;
+option go_package = "todolist.firliilhami.com/proto";
+
+import "google/protobuf/timestamp.proto";
+
+
+message CreateTaskRequest {
+    string title = 1;
+    string description = 2;
+}
+
+message CreateTaskResponse {
+    uint32 id = 1;
+}
+
+message ReadTaskRequest {
+    uint32 id = 1;
+}
+
+message ReadTaskResponse {
+    uint32 id = 1;
+    string title = 2;
+    string description = 3;
+    google.protobuf.Timestamp created_at = 4;
+
+}
+
+message UpdateTaskRequest {
+    uint32 id = 1;
+    string title = 2;
+    string description = 3;
+}
+
+message UpdateTaskResponse {
+    uint32 id = 1;
+}
+
+message DeleteTaskRequest {
+    uint32 id = 1;
+}
+
+message DeleteTaskResponse {
+    bool success = 1;
+}
+
+
+service TaskService {
+    rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+    rpc ReadTask(ReadTaskRequest) returns (ReadTaskResponse);
+    rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+    rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+}
