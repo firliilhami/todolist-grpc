@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 
@@ -15,20 +14,13 @@ import (
 )
 
 func main() {
-	port := 1111
-
-	log.Printf("start server on port %d", port)
-
 	// dsn database
-
 	dsn := "user=postgres password=postgres host=db port=5432 dbname=postgres sslmode=disable"
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
-
-	log.Println("DB connected")
 
 	// Auto-migrate the table
 	err = db.AutoMigrate(&models.Task{})
@@ -41,7 +33,7 @@ func main() {
 
 	pb.RegisterTaskServiceServer(grpcServer, taskServer)
 
-	address := fmt.Sprintf("0.0.0.0:%d", port)
+	address := "0.0.0.0:1111"
 
 	// Enable the reflection API (it is used for grpcurl)
 	reflection.Register(grpcServer)
@@ -51,6 +43,8 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot start server: ", err)
 	}
+
+	log.Println("the server is running on: " + address)
 
 	err = grpcServer.Serve(listener)
 	if err != nil {
