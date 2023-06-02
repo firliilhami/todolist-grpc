@@ -62,4 +62,10 @@ expected response:
 }
 ```
 
+# Running unit & integration testing
+use the following command:
+```
+go test ./tests
+```
+
 
