@@ -20,7 +20,8 @@ Once the containers are running, you can use ```grpcurl``` to test the CRUD oper
 For example, to create a new task, you can use the following command:
 ```
 grpcurl -plaintext -d '{"title": "Review a PR", "description": "Reviewing the PR for feature X"}' 0.0.0.0:1111 task_package.TaskService/CreateTask
-
+```
+```
 expected response:
 {
     "id": uint32,
@@ -28,8 +29,9 @@ expected response:
 ```
 To get a task by ID, use the following command:
 ```
-command: grpcurl -plaintext -d '{"id": 1}' 0.0.0.0::1111 task_package.TaskService/ReadTask
-
+grpcurl -plaintext -d '{"id": 1}' 0.0.0.0::1111 task_package.TaskService/ReadTask
+```
+```
 expected response:
 {
   "id": uint32,
@@ -40,8 +42,9 @@ expected response:
 ```
 To update a task, use the following command:
 ```
-command: grpcurl -plaintext -d '{"id": 1, "title": "Review a PR Updated", "description": "Reviewing the PR for feature X updated"}' 0.0.0.0::1111 task_package.TaskService/UpdateTask
-
+grpcurl -plaintext -d '{"id": 1, "title": "Review a PR Updated", "description": "Reviewing the PR for feature X updated"}' 0.0.0.0::1111 task_package.TaskService/UpdateTask
+```
+```
 expected response:
 {
     "id": uint32,
@@ -50,8 +53,9 @@ expected response:
 
 to delete a task by ID, use the following command:
 ```
-command: grpcurl -plaintext -d '{"id": 1}' 0.0.0.0::1111 task_package.TaskService/DeleteTask
-
+grpcurl -plaintext -d '{"id": 1}' 0.0.0.0::1111 task_package.TaskService/DeleteTask
+```
+```
 expected response:
 {
     "success": bool,
