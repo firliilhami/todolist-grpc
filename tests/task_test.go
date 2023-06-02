@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -14,28 +15,58 @@ import (
 	pb "todolist.firliilhami.com/proto"
 )
 
-const expectedId uint32 = 1
-
 func TestCreateTask(t *testing.T) {
 	db := createMockDB()
 
 	// initialize the TaskServer
 	taskServer := service.NewTaskServer(db)
-
-	// CreateTaskRequest
-	req := &pb.CreateTaskRequest{
-		Title:       "Test Title",
-		Description: "Test Description",
+	type TestCase struct {
+		name        string
+		title       string
+		description string
+		code        codes.Code
 	}
 
-	// call the CreateTask Method
-	res, err := taskServer.CreateTask(context.Background(), req)
+	testCases := []TestCase{
+		{
+			name:        "valid_arguments",
+			title:       "valid title",
+			description: "valid description",
+			code:        codes.OK,
+		},
+		{
+			name:        "invalid_arguments_empty_title",
+			title:       "",
+			description: "empty string for title",
+			code:        codes.InvalidArgument,
+		},
+	}
 
-	// assert that no error
-	assert.Nil(t, err)
+	var tc TestCase
+	var req *pb.CreateTaskRequest
+	var res *pb.CreateTaskResponse
+	var err error
 
-	// assert that the ID is 1
-	assert.Equal(t, 1, int(res.Id))
+	for i := range testCases {
+		tc = testCases[i]
+
+		req = &pb.CreateTaskRequest{
+			Title:       tc.title,
+			Description: tc.description,
+		}
+
+		res, err = taskServer.CreateTask(context.Background(), req)
+
+		if tc.code == codes.OK {
+			assert.NoError(t, err)
+			assert.NotNil(t, res)
+			assert.NotEmpty(t, res.Id)
+		} else {
+			assert.Error(t, err)
+			assert.Nil(t, res)
+		}
+
+	}
 }
 
 func TestReadTask(t *testing.T) {
@@ -43,34 +74,59 @@ func TestReadTask(t *testing.T) {
 
 	// initialize the TaskServer
 	taskServer := service.NewTaskServer(db)
-
-	// create a task
-	task := &models.Task{
-		Title:       "Test Title",
-		Description: "Test Description",
+	type TestCase struct {
+		name string
+		id   uint32
+		code codes.Code
 	}
 
-	db.Create(task)
-
-	// ReadTaskRequest
-	req := &pb.ReadTaskRequest{
-		Id: expectedId,
+	testCases := []TestCase{
+		{
+			name: "valid_arguments",
+			id:   1,
+			code: codes.OK,
+		},
+		{
+			name: "invalid_arguments_no_record_id",
+			id:   1000,
+			code: codes.InvalidArgument,
+		},
 	}
 
-	// call the ReadTask Method
-	res, err := taskServer.ReadTask(context.Background(), req)
+	// invoce create task request to save data in database
+	createReq := &pb.CreateTaskRequest{
+		Title:       "test title",
+		Description: "test description",
+	}
 
-	// assert that no error
-	assert.Nil(t, err)
+	_, _ = taskServer.CreateTask(context.Background(), createReq)
 
-	// assert that the ID is 1
-	assert.Equal(t, 1, int(res.Id))
+	var tc TestCase
+	var req *pb.ReadTaskRequest
+	var res *pb.ReadTaskResponse
+	var err error
 
-	// assert that the title is "Test Title"
-	assert.Equal(t, "Test Title", res.Title)
+	for i := range testCases {
+		tc = testCases[i]
 
-	// assert that the description is "Test Description"
-	assert.Equal(t, "Test Description", res.Description)
+		req = &pb.ReadTaskRequest{
+			Id: tc.id,
+		}
+
+		res, err = taskServer.ReadTask(context.Background(), req)
+
+		if tc.code == codes.OK {
+			assert.NoError(t, err)
+			assert.NotNil(t, res)
+			assert.NotEmpty(t, res.Id)
+			assert.Equal(t, createReq.Title, res.Title)
+			assert.Equal(t, createReq.Description, res.Description)
+		} else {
+			assert.Error(t, err)
+			assert.Nil(t, res)
+		}
+
+	}
 }
 
 func TestUpdateTask(t *testing.T) {
@@ -78,51 +134,81 @@ func TestUpdateTask(t *testing.T) {
 
 	// initialize the TaskServer
 	taskServer := service.NewTaskServer(db)
-
-	// create a task
-	task := &models.Task{
-		Title:       "Test Title",
-		Description: "Test Description",
+	type TestCase struct {
+		name        string
+		id          uint32
+		Title       string
+		Description string
+		code        codes.Code
 	}
 
-	db.Create(task)
-
-	// CreateTaskRequest
-	req := &pb.UpdateTaskRequest{
-		Id:          expectedId,
-		Title:       "updated title",
-		Description: "updated description",
+	testCases := []TestCase{
+		{
+			name:        "valid_arguments",
+			id:          1,
+			Title:       "title is updated",
+			Description: "description is updated",
+			code:        codes.OK,
+		},
+		{
+			name:        "invalid_arguments_empty_title",
+			id:          1,
+			Title:       "",
+			Description: "updated with empty title",
+			code:        codes.InvalidArgument,
+		},
+		{
+			name:        "invalid_arguments_no_record_id",
+			id:          10000,
+			Title:       "title is updated",
+			Description: "description is updated",
+			code:        codes.InvalidArgument,
+		},
 	}
 
-	// call the UpdateTask Method
-	res, err := taskServer.UpdateTask(context.Background(), req)
-
-	// assert that no error
-	assert.Nil(t, err)
-
-	// assert that the ID is 1
-	assert.Equal(t, 1, int(res.Id))
-
-	// ReadTaskRequest
-	readReq := &pb.ReadTaskRequest{
-		Id: expectedId,
+	// invoce create task request to save data in database
+	createReq := &pb.CreateTaskRequest{
+		Title:       "test title",
+		Description: "test description",
 	}
 
-	// call the ReadTask Method
-	readRes, err := taskServer.ReadTask(context.Background(), readReq)
+	_, _ = taskServer.CreateTask(context.Background(), createReq)
 
-	// assert that no error
-	assert.Nil(t, err)
+	var tc TestCase
+	var readRes *pb.ReadTaskResponse
+	var req *pb.UpdateTaskRequest
+	var res *pb.UpdateTaskResponse
+	var err error
 
-	// assert that the ID is 1
-	assert.Equal(t, 1, int(res.Id))
+	for i := range testCases {
+		tc = testCases[i]
 
-	// assert that the title is "updated title"
-	assert.Equal(t, "updated title", readRes.Title)
+		req = &pb.UpdateTaskRequest{
+			Id:          tc.id,
+			Title:       tc.Title,
+			Description: tc.Description,
+		}
 
-	// assert that the description is "updated description"
-	assert.Equal(t, "updated description", readRes.Description)
+		res, err = taskServer.UpdateTask(context.Background(), req)
 
+		if tc.code == codes.OK {
+			assert.NoError(t, err)
+			assert.NotNil(t, res)
+			assert.NotEmpty(t, res.Id)
+		} else {
+			assert.Error(t, err)
+			assert.Nil(t, res)
+		}
+
+		// read the update task
+		readRes, _ = taskServer.ReadTask(context.Background(), &pb.ReadTaskRequest{Id: 1})
+
+		if tc.code == codes.OK {
+			assert.Equal(t, tc.Title, readRes.Title)
+			assert.Equal(t, tc.Description, readRes.Description)
+		}
+
+	}
 }
 
 func TestDeleteTask(t *testing.T) {
@@ -130,28 +216,58 @@ func TestDeleteTask(t *testing.T) {
 
 	// initialize the TaskServer
 	taskServer := service.NewTaskServer(db)
-
-	// create a task
-	task := &models.Task{
-		Title:       "Test Title",
-		Description: "Test Description",
+	type TestCase struct {
+		name string
+		id   uint32
+		code codes.Code
 	}
 
-	db.Create(task)
-
-	// DeleteTaskRequest
-	req := &pb.DeleteTaskRequest{
-		Id: 1,
+	testCases := []TestCase{
+		{
+			name: "valid_arguments",
+			id:   1,
+			code: codes.OK,
+		},
+		{
+			name: "invalid_arguments_no_record_id",
+			id:   10000,
+			code: codes.InvalidArgument,
+		},
 	}
 
-	// call the DeleteTask Method
-	res, err := taskServer.DeleteTask(context.Background(), req)
+	// invoce create task request to save data in database
+	createReq := &pb.CreateTaskRequest{
+		Title:       "test title",
+		Description: "test description",
+	}
 
-	// assert that no error
-	assert.Nil(t, err)
+	_, _ = taskServer.CreateTask(context.Background(), createReq)
 
-	// assert that the ID is not empty
-	assert.Equal(t, true, res.Success)
+	var tc TestCase
+	var req *pb.DeleteTaskRequest
+	var res *pb.DeleteTaskResponse
+	var err error
+
+	for i := range testCases {
+		tc = testCases[i]
+
+		req = &pb.DeleteTaskRequest{
+			Id: tc.id,
+		}
+
+		res, err = taskServer.DeleteTask(context.Background(), req)
+
+		if tc.code == codes.OK {
+			assert.NoError(t, err)
+			assert.NotNil(t, res)
+			assert.Equal(t, true, res.Success)
+		} else {
+			log.Println(err)
+			assert.Error(t, err)
+			assert.Nil(t, res)
+		}
+
+	}
 }
 
 func createMockDB() *gorm.DB {
