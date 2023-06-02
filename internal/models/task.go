@@ -10,7 +10,7 @@ import (
 type Task struct {
 	ID          uint32 `gorm:"primaryKey;autoIncrement"`
 	Title       string `gorm:"not null"`
-	Description string `gorm:"not null"`
+	Description string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
