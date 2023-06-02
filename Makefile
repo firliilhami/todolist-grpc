@@ -5,7 +5,4 @@ clean:
 	rm proto/*.go
 
 server:
-	go run cmd/server/main.go -port 1111
-
-client:
-	go run cmd/client/main.go -address 0.0.0.0:1111
+	go run cmd/server/main.go
