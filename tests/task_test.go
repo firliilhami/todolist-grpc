@@ -93,7 +93,7 @@ func TestReadTask(t *testing.T) {
 		},
 	}
 
-	// invoce create task request to save data in database
+	// create task request to save data in database
 	createReq := &pb.CreateTaskRequest{
 		Title:       "test title",
 		Description: "test description",
@@ -166,7 +166,7 @@ func TestUpdateTask(t *testing.T) {
 		},
 	}
 
-	// invoce create task request to save data in database
+	// create task request to save data in database
 	createReq := &pb.CreateTaskRequest{
 		Title:       "test title",
 		Description: "test description",
@@ -235,7 +235,7 @@ func TestDeleteTask(t *testing.T) {
 		},
 	}
 
-	// invoce create task request to save data in database
+	// create task request to save data in database
 	createReq := &pb.CreateTaskRequest{
 		Title:       "test title",
 		Description: "test description",
