@@ -28,11 +28,10 @@ func main() {
 	listener, err := net.Listen("tcp", address)
 
 	if err != nil {
-		log.Fatal("cannot start server: ", err)
+		log.Fatal("cannot create server: ", err)
 	}
 
-	log.Println("the server is running on: " + address)
-
+	log.Println("starting server on: " + address)
 	err = grpcServer.Serve(listener)
 	if err != nil {
 		log.Fatal("cannot start server: ", err)
