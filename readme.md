@@ -29,7 +29,7 @@ expected response:
 ```
 To get a task by ID, use the following command:
 ```
-grpcurl -plaintext -d '{"id": 1}' 0.0.0.0::1111 task_package.TaskService/ReadTask
+grpcurl -plaintext -d '{"id": 1}' 0.0.0.0:1111 task_package.TaskService/ReadTask
 ```
 ```
 expected response:
@@ -42,7 +42,7 @@ expected response:
 ```
 To update a task, use the following command:
 ```
-grpcurl -plaintext -d '{"id": 1, "title": "Review a PR Updated", "description": "Reviewing the PR for feature X updated"}' 0.0.0.0::1111 task_package.TaskService/UpdateTask
+grpcurl -plaintext -d '{"id": 1, "title": "Review a PR Updated", "description": "Reviewing the PR for feature X updated"}' 0.0.0.0:1111 task_package.TaskService/UpdateTask
 ```
 ```
 expected response:
@@ -53,7 +53,7 @@ expected response:
 
 to delete a task by ID, use the following command:
 ```
-grpcurl -plaintext -d '{"id": 1}' 0.0.0.0::1111 task_package.TaskService/DeleteTask
+grpcurl -plaintext -d '{"id": 1}' 0.0.0.0:1111 task_package.TaskService/DeleteTask
 ```
 ```
 expected response:
