@@ -12,7 +12,7 @@ Features:
 2. Open your terminal and change the directory to this project folder
 3. We run the server using docker-compose, ensure that you have Docker and Docker Compose installed on your system.
 4. Run ```docker-compose up``` on your terminal, it will take some time when run for the first time.
-5. If it run successully, it will log ```the server is running on: 0.0.0.0:1111```
+5. If it ran successfully, it will log ```the server is running on: 0.0.0.0:1111```
 
 # Test CRUD operations
 Once the containers are running, you can use ```grpcurl``` to test the CRUD operations. Ensure that you have grpcurl installed on your local machine.
