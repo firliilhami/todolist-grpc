@@ -15,6 +15,7 @@ type Task struct {
 	UpdatedAt   time.Time
 }
 
+// GORM hooks
 func (t *Task) BeforeCreate(tx *gorm.DB) (err error) {
 	t.CreatedAt = time.Now()
 	return nil

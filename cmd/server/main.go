@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -16,15 +15,14 @@ import (
 )
 
 func main() {
-	port := flag.Int("port", 0, "the server port")
-	flag.Parse()
+	port := 1111
 
-	log.Printf("start server on port %d", *port)
+	log.Printf("start server on port %d", port)
 
-	// database
-	dsn := "host=0.0.0.0 user=postgres password=postgres dbname=postgres port=1717 sslmode=disable"
+	// dsn database
 
-	var err error
+	dsn := "user=postgres password=postgres host=db port=5432 dbname=postgres sslmode=disable"
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
@@ -40,11 +38,12 @@ func main() {
 
 	taskServer := service.NewTaskServer(db)
 	grpcServer := grpc.NewServer()
+
 	pb.RegisterTaskServiceServer(grpcServer, taskServer)
 
-	address := fmt.Sprintf("0.0.0.0:%d", *port)
+	address := fmt.Sprintf("0.0.0.0:%d", port)
 
-	// Enable the reflection API
+	// Enable the reflection API (it is used for grpcurl)
 	reflection.Register(grpcServer)
 
 	listener, err := net.Listen("tcp", address)

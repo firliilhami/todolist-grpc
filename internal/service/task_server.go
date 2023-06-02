@@ -21,7 +21,7 @@ func NewTaskServer(db *gorm.DB) *TaskServer {
 	return &TaskServer{db: db}
 }
 
-// CreateTask is a unary RPC to create a new task
+// CreateTask is used for add new data
 func (s *TaskServer) CreateTask(
 	ctx context.Context,
 	req *pb.CreateTaskRequest) (*pb.CreateTaskResponse, error) {
@@ -45,6 +45,7 @@ func (s *TaskServer) CreateTask(
 	return response, nil
 }
 
+// get Task based on Task ID
 func (s *TaskServer) ReadTask(ctx context.Context, req *pb.ReadTaskRequest) (*pb.ReadTaskResponse, error) {
 	task := &models.Task{}
 	// read from db based on id
@@ -66,9 +67,8 @@ func (s *TaskServer) ReadTask(ctx context.Context, req *pb.ReadTaskRequest) (*pb
 	return response, nil
 }
 
+// updating task title or description
 func (s *TaskServer) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) (*pb.UpdateTaskResponse, error) {
-	// TODO: Implement the logic to read a task from your database or storage
-	// For simplicity, we'll just return a dummy response with a predefined title and description
 	task := &models.Task{}
 
 	res := s.db.First(task, req.Id)
@@ -96,6 +96,7 @@ func (s *TaskServer) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) 
 	return response, nil
 }
 
+// delete task by task Id
 func (s *TaskServer) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb.DeleteTaskResponse, error) {
 	res := s.db.Delete(&models.Task{}, req.Id)
 

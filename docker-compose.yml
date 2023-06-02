@@ -1,11 +1,16 @@
 version: '3.8'
 services:
+  app:
+    build: .
+    restart: on-failure
+    ports:
+      - '1111:1111'
+    depends_on:
+      - db
   db:
     image: postgres:14.1-alpine
-    restart: always
+    restart: on-failure
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
-    ports:
-      - '1717:5432'

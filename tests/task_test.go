@@ -104,12 +104,12 @@ func TestUpdateTask(t *testing.T) {
 	assert.Equal(t, 1, int(res.Id))
 
 	// ReadTaskRequest
-	req_read := &pb.ReadTaskRequest{
+	readReq := &pb.ReadTaskRequest{
 		Id: expectedId,
 	}
 
 	// call the ReadTask Method
-	res_read, err := taskServer.ReadTask(context.Background(), req_read)
+	readRes, err := taskServer.ReadTask(context.Background(), readReq)
 
 	// assert that no error
 	assert.Nil(t, err)
@@ -118,10 +118,10 @@ func TestUpdateTask(t *testing.T) {
 	assert.Equal(t, 1, int(res.Id))
 
 	// assert that the title is "updated title"
-	assert.Equal(t, "updated title", res_read.Title)
+	assert.Equal(t, "updated title", readRes.Title)
 
 	// assert that the description is "updated description"
-	assert.Equal(t, "updated description", res_read.Description)
+	assert.Equal(t, "updated description", readRes.Description)
 
 }
 
