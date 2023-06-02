@@ -7,7 +7,7 @@ Features:
 3. UpdateTask: Users can update the title and description of an existing task by providing the task ID along with the updated information.
 4. DeleteTask: Users can delete a task by specifying the task ID. This removes the task from the database.
 
-# How to run gRPC server
+# How to run server
 1. Clone this github repository
 2. Open your terminal and change the directory to this project folder
 3. We run the server using docker-compose, ensure that you have Docker and Docker Compose installed on your system.
