@@ -1,42 +1,33 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"todolist.firliilhami.com/internal/models"
-	"todolist.firliilhami.com/internal/service"
+	"todolist.firliilhami.com/internal/wire"
 	pb "todolist.firliilhami.com/proto"
 )
 
 func main() {
-	// dsn database
-	dsn := "user=postgres password=postgres host=db port=5432 dbname=postgres sslmode=disable"
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	taskServer, err := wire.InitializeTaskServer()
 	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
+		log.Fatal("cannot initialize server: ", err)
 	}
-
-	// Auto-migrate the table
-	err = db.AutoMigrate(&models.Task{})
-	if err != nil {
-		log.Fatalf("Failed to auto-migrate table: %v", err)
-	}
-
-	taskServer := service.NewTaskServer(db)
 	grpcServer := grpc.NewServer()
+
+	// Enable the reflection API (so grpcurl can use the service)
+	reflection.Register(grpcServer)
 
 	pb.RegisterTaskServiceServer(grpcServer, taskServer)
 
 	address := "0.0.0.0:1111"
-
-	// Enable the reflection API (it is used for grpcurl)
-	reflection.Register(grpcServer)
 
 	listener, err := net.Listen("tcp", address)
 
@@ -51,4 +42,30 @@ func main() {
 		log.Fatal("cannot start server: ", err)
 	}
 
+}
+
+func newDatabaseURL() string {
+	env := os.Getenv("env")
+	var host string
+	var port int32
+
+	if env == "" {
+		host = "localhost"
+		port = 2222
+	} else {
+		host = "db"
+		port = 5432
+	}
+
+	return fmt.Sprintf("host=%s port=%d user=postgres password=postgres dbname=postgres sslmode=disable", host, port)
+}
+func newDBConn(dsn string) (*gorm.DB, error) {
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+		return nil, err
+	}
+
+	return db, nil
 }

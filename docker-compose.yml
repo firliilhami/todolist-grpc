@@ -7,9 +7,13 @@ services:
       - '1111:1111'
     depends_on:
       - db
+    environment:
+      - env=docker
   db:
     image: postgres:14.1-alpine
     restart: always
+    ports:
+      - '2222:5432'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
