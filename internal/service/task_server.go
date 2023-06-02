@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -25,6 +26,12 @@ func NewTaskServer(db *gorm.DB) *TaskServer {
 func (s *TaskServer) CreateTask(
 	ctx context.Context,
 	req *pb.CreateTaskRequest) (*pb.CreateTaskResponse, error) {
+
+	// validate title
+	if err := s.validateTitleRequest(req.Title); err != nil {
+		log.Printf("Invalid argument for title: %v", err)
+		return nil, err
+	}
 
 	task := &models.Task{
 		Title:       req.Title,
@@ -78,6 +85,12 @@ func (s *TaskServer) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) 
 		return nil, res.Error
 	}
 
+	// validate title
+	if err := s.validateTitleRequest(req.Title); err != nil {
+		log.Printf("Invalid argument for title: %v", err)
+		return nil, err
+	}
+
 	task.Title = req.Title
 	task.Description = req.Description
 
@@ -100,7 +113,11 @@ func (s *TaskServer) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) 
 func (s *TaskServer) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb.DeleteTaskResponse, error) {
 	res := s.db.Delete(&models.Task{}, req.Id)
 
-	if res.Error != nil {
+	if res.RowsAffected == 0 {
+		err := errors.New("id is not found")
+		log.Printf("Failed to delete task: %v", err)
+		return nil, err
+	} else if res.Error != nil {
 		log.Printf("Failed to delete task: %v", res.Error)
 		return nil, res.Error
 	}
@@ -110,4 +127,11 @@ func (s *TaskServer) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) 
 		Success: true,
 	}
 	return response, nil
+}
+
+func (s *TaskServer) validateTitleRequest(title string) error {
+	if title == "" {
+		return errors.New("title cannot be empty string")
+	}
+	return nil
 }
