@@ -23,9 +23,7 @@ func NewTaskServer(db *gorm.DB) *TaskServer {
 }
 
 // CreateTask is used for add new data
-func (s *TaskServer) CreateTask(
-	ctx context.Context,
-	req *pb.CreateTaskRequest) (*pb.CreateTaskResponse, error) {
+func (s *TaskServer) CreateTask(ctx context.Context, req *pb.CreateTaskRequest) (*pb.CreateTaskResponse, error) {
 
 	// validate title
 	if err := s.validateTitleRequest(req.Title); err != nil {
